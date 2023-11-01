@@ -13,12 +13,18 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: Login
+      component: Login,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/register',
       name: 'register',
-      component: Register
+      component: Register,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/about',
@@ -30,5 +36,21 @@ const router = createRouter({
     }
   ]
 })
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
 
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // Check if the route requires authentication
+    if (!token) {
+      // Redirect to the login page if the user is not authenticated
+      next('/')
+    } else {
+      // Proceed to the route if the user is authenticated
+      next()
+    }
+  } else {
+    // For public routes, proceed without checking authentication
+    next()
+  }
+})
 export default router
